@@ -11,9 +11,13 @@
 #include "device.h"
 #include "../../common/regsauto.h"
 
+extern int debledct;
+
 class MasterDevice : public Device {
+    int debug;
 public:    
     MasterDevice() : Device(registerTable_MASTER){
+        debug = 123;
     }
     
     void init(){
@@ -27,6 +31,11 @@ public:
         
         switch(r){
         case REGMASTER_RESET:
+            break;
+        case REGMASTER_DEBUG:
+            debug=val;
+            debledct=val;
+            if(debledct)digitalWrite(13,HIGH);
             break;
         }
         return 0;
@@ -46,6 +55,9 @@ public:
         switch(r){
         case REGMASTER_EXCEPTIONDATA:
             *readValue = 0;
+            break;
+        case REGMASTER_DEBUG:
+            *readValue = debug;
             break;
             // put other registers in here
         default:

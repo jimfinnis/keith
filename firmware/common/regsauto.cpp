@@ -49,5 +49,6 @@ extern MAYBEPROGMEM Register registerTable_DRIVE[]={
 extern MAYBEPROGMEM Register registerTable_MASTER[]={
 	{65, -1.0, -1.0}, 	// RESET: (0)  set to clear exception state
 	{2, -1.0, -1.0}, 	// EXCEPTIONDATA: (1)  data of exception
-	{32, -1.0, -1.0}, 	// TERMINATOR: (2)  
+	{66, -1.0, -1.0}, 	// DEBUG: (2)  master test
+	{32, -1.0, -1.0}, 	// TERMINATOR: (3)  
 };

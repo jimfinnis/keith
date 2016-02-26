@@ -54,7 +54,8 @@ extern MAYBEPROGMEM Register registerTable_DRIVE[];
 
 #define REGMASTER_RESET	0 	//set to clear exception state
 #define REGMASTER_EXCEPTIONDATA	1 	//data of exception
-#define NUMREGS_MASTER 2
+#define REGMASTER_DEBUG	2 	//master test
+#define NUMREGS_MASTER 3
 
 extern MAYBEPROGMEM Register registerTable_MASTER[];
 
