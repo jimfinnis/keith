@@ -10,32 +10,31 @@
 #include "../../common/regsauto.h"
 #include "slave_i2c.h"
 
-static char serialbuf[256];
-static char *serialptr;
-static float stack[8];
-static int stackct=0;
 /// last time we got a message from the master
 volatile unsigned long lastmsgtime=0;
 
-
-float pop(){
-    if(stackct>0)
-        return stack[--stackct];
-    else
-        return 0;
-}
-
 PIDMotor m1,m2;
+
+// the encoder interrupts. ENC1A is on pin 7 (PD7)
+// and ENC2A is on pin 10 (PB2)
 
 void setupEncoderISR(){
     cli();
-    PCMSK2 |= 1<<PCINT18; // unmask interrupt for PD2 = digital pin 2
-    PCICR |= 1<<PCIE2; // turn on ints for port D
+    PCMSK2 |= 1<<PCINT23; // unmask interrupt for PD7
+    PCMSK0 |= 1<<PCINT2; // unmask interrupt for PB2
+    PCICR |= (1<<PCIE2)|(1<<PCIE0); // turn on ints for masks 0 and 2
     sei();
 }
 ISR(PCINT2_vect){
-    if(PIND & 4){ // rising edge on in 2
-        m1.tickEncoder(PIND & 8); // tick, passing in other pin state
+    if(PIND & (1<<PIND7)){ // rising edge on D7 (pin 7)
+        // check pin B0 (pin 8) and pass it in.
+        m1.tickEncoder(PINB & (1<<PINB0)); // tick, passing in other pin state
+    }
+}
+ISR(PCINT0_vect){
+    if(PINB & (1<<PINB2)){ // rising edge on B2 (pin 10)
+        // check pin PB1 (pin 9) and pass it in
+        m2.tickEncoder(PINB & (1<<PINB1));
     }
 }
 
@@ -198,7 +197,6 @@ void setup()
 //    setPwmFrequency(PWm2,1); 
 //    setPwmFrequency(PWM2,1);
     
-/*    
     m1.init(PWM1,DIR1,true); // pins and whether I've done the encoder backwards
     m2.init(PWM2,DIR2,true); // pins and whether I've done the encoder backwards
     
@@ -207,7 +205,6 @@ void setup()
     
     pinMode(ENC2A,INPUT_PULLUP); // the two encoder pins
     pinMode(ENC2B,INPUT_PULLUP);
- */
     
     initI2C(1); // takes address
     
@@ -223,8 +220,9 @@ void loop()
     // read I2C data and handle register changes
     I2CSlave::poll();
     
-    // m1.update();
-    // m2.update();
+    // update motors
+    m1.update();
+    m2.update();
     
     wdt_reset();
     setRegsValues();

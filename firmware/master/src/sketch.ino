@@ -231,11 +231,9 @@ void setup()
     master.init(); // start up master device
     
     wdt_enable(WDTO_1S);
-#if SLAVESPRESENT
     for(int i=0;i<NUMSLAVES;i++){
         slaves[i].reset();
     }
-#endif
     wdt_enable(WDTO_120MS);
     
     //    TWSR = 3; // slow down
@@ -262,7 +260,6 @@ void loop()
     
     unsigned long t = millis();
     if(t>5000){
-#if SLAVESPRESENT
         if(t>lastt1 && (t-lastt1)>1000){
             lastt1=t;
             digitalWrite(13,HIGH);
@@ -271,7 +268,6 @@ void loop()
                 slaves[i].update();
             }
         }
-#endif
         if(t>lastt2 && (t-lastt2)>100){
             lastt2=t;
             master.tick();

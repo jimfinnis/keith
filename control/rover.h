@@ -16,20 +16,25 @@ class Rover {
     SlaveProtocol protocol;
     
     SlaveDevice masterDev; // actually the master device, not a slave
-    SlaveDevice slaveDev1;
+    SlaveDevice slaveDev[2];
     
     MasterData *masterData;
-    SlaveData *slaveData1;
+    SlaveData *slaveData[2];
     bool valid;
 public:
     Rover(){
         valid = false;
         masterData=NULL;
+        slaveData[0]=slaveData[1]=NULL;
     }
     
     ~Rover(){
         if(masterData)
             delete masterData;
+        if(slaveData[0])
+            delete slaveData[0];
+        if(slaveData[1])
+            delete slaveData[1];
     }
     
     bool init(const char *port){
@@ -43,10 +48,11 @@ public:
         masterDev.init(&protocol,registerTable_MASTER,0);
         masterData->init(); // set read set
         
-        slaveData1 = new SlaveData(&slaveDev1);
-        slaveDev1.init(&protocol,registerTable_DRIVE,1);
-        slaveData1->init();
-        
+        for(int i=0;i<2;i++){
+            slaveData[i] = new SlaveData(&slaveDev[i]);
+            slaveDev[i].init(&protocol,registerTable_DRIVE,i+1);
+            slaveData[i]->init();
+        }
         
         valid =true;
     }
@@ -54,7 +60,8 @@ public:
     void update(){
         if(valid){
             masterData->update();
-            slaveData1->update();
+            slaveData[0]->update();
+            slaveData[1]->update();
         }
     }
     
@@ -66,8 +73,8 @@ public:
     MasterData *getMasterData(){
         return masterData;
     }
-    SlaveData *getSlaveData1(){
-        return slaveData1;
+    SlaveData *getSlaveData(int n){
+        return slaveData[n];
     }
     
     void setMasterDebug(int v){

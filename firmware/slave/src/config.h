@@ -14,16 +14,16 @@
 #define PWM1 3
 #define DIR1 4
 
-#define PWM2 6
-#define DIR2 7
+#define PWM2 5
+#define DIR2 6
 
 // of course the code must be customised for these to get
 // the interrupts. Pin A is the interrupt pin
-#define ENC1A 2 
-#define ENC1B 3
+#define ENC1A 7 
+#define ENC1B 8
 
-#define ENC2A 8
-#define ENC2B 9
+#define ENC2A 9
+#define ENC2B 10
 
 #define LED1  12
 #define LED2  13

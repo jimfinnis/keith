@@ -29,6 +29,7 @@ DRIVE
     M1_INTEGRALCAP          writable    2 range 0 1000      "integral error cap"
     M1_INTEGRALDECAY        writable    2 range 0 1       "integral decay"
     M1_DEADZONE             writable    2 range 0 50        "errors less than this are disregarded"
+
     M1_ACTUALSPEED                      2 range -4000 4000      "actual speed from encoder"
     M1_ERROR                            2 range -1000 1000  "required minus actual speed"
     M1_ERRORINTEGRAL                    2 range -1000 1000  "error integral magnitude"
