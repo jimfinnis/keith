@@ -14,20 +14,16 @@
 /// which only comes into play when the required speed is zero
 #define MOTOR_SPEED_DECAY	0.92f
 
+extern bool inException;
+
 class PIDMotor {
     Motor m;
     QuadEncoder e;
     
-    float ctl; //!< the motor control value
     bool reversed; //!< encoder is backwards
     
     float prevActual;
     unsigned long prevTime;
-    
-    /// integral of error for I-term calculation
-    float errorIntegral;
-    /// derivative of error for D-term calculation - *really* it's the position derivative!
-    float errorDerivative;
     
     /// calculate PID correction, does nothing and returns
     /// false if time wrapped around
@@ -80,6 +76,18 @@ public:
         deadZone=0;
         actual=required=0;
     }
+    
+    int getOdometry(){
+        return e.getOdometry();
+    }
+    
+    void resetOdometry(){
+        e.resetOdometry();
+    }
+    
+    float getCurrent(){
+        return 0; // NYI
+    }
         
     
     /// set up the motor, passing in the motor control pins
@@ -112,6 +120,7 @@ public:
                 if(required<0.001f && required>-0.001f)
                     ctl *= MOTOR_SPEED_DECAY; 
                 // and set the motor
+                if(inException)ctl=0; // to zero if we're in a bad way
                 m.setSpeed(ctl);
             }
         }
@@ -121,6 +130,12 @@ public:
     
     float actual; //!< reported encoder speed
     float required; //!< required speed
+    /// integral of error for I-term calculation
+    float errorIntegral;
+    /// derivative of error for D-term calculation - *really* it's the position derivative!
+    float errorDerivative;
+    float ctl; //!< the motor control value
+    
     
     /////////////////// parameters /////////////////////////
     

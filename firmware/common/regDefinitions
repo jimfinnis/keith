@@ -1,0 +1,66 @@
+--
+-- This is the common block - these registers are prepended to 
+-- all the blocks below them. Each register is defined as
+--
+--      <name> [<writable>] <bytes> <description>
+--
+
+{
+    RESET                   writable    1 unmapped      "set to 1 to reset"
+    PING                    writable    1 unmapped      "debugging"
+    DEBUG                   writable    2 unmapped      "debugging"
+    DEBUGLED                writable    1 unmapped      "debug LED"
+    TIMER                               2 unmapped      "millis since start"
+    INTERVALI2C                         2 unmapped      "interval between I2C ticks"
+    STATUS                              2 unmapped      "see status flags in regs.h"
+    EXCEPTIONDATA                       1 unmapped      "error state"
+}
+
+-- This block is the registers for DS(p) cards:
+-- each has a drive and steer motor, and some also read a
+-- chassis inclinometer pot.
+
+DRIVE
+{
+    M1_REQSPEED             writable    2 range -4000 4000    "required speed"
+    M1_PGAIN                writable    2 range 0 10        "P-gain"
+    M1_IGAIN                writable    2 range 0 10        "I-gain"
+    M1_DGAIN                writable    2 range -10 10      "D-gain"
+    M1_INTEGRALCAP          writable    2 range 0 1000      "integral error cap"
+    M1_INTEGRALDECAY        writable    2 range 0 1       "integral decay"
+    M1_DEADZONE             writable    2 range 0 50        "errors less than this are disregarded"
+    M1_ACTUALSPEED                      2 range -4000 4000      "actual speed from encoder"
+    M1_ERROR                            2 range -1000 1000  "required minus actual speed"
+    M1_ERRORINTEGRAL                    2 range -1000 1000  "error integral magnitude"
+    M1_ERRORDERIV			2 range -200 200    "error derivative"
+    M1_CONTROL                          2 range -255 255      "value being sent to motor"
+    M1_INTERVALCTRL                     2 range 0 1000      "time between control runs (ms)"
+    M1_CURRENT		                2 unmapped          "raw current reading"
+    M1_ODO                              2 unmapped          "encoder ticks"
+
+    M2_REQSPEED             writable    2 range -4000 4000    "required speed"
+    M2_PGAIN                writable    2 range 0 10        "P-gain"
+    M2_IGAIN                writable    2 range 0 10        "I-gain"
+    M2_DGAIN                writable    2 range -10 10      "D-gain"
+    M2_INTEGRALCAP          writable    2 range 0 1000      "integral error cap"
+    M2_INTEGRALDECAY        writable    2 range 0 1       "integral decay"
+    M2_DEADZONE             writable    2 range 0 50        "errors less than this are disregarded"
+
+    M2_ACTUALSPEED                      2 range -4000 4000      "actual speed from encoder"
+    M2_ERROR                            2 range -1000 1000  "required minus actual speed"
+    M2_ERRORINTEGRAL                    2 range -1000 1000  "error integral magnitude"
+    M2_ERRORDERIV			2 range -200 200    "error derivative"
+    M2_CONTROL                          2 range -255 255      "value being sent to motor"
+    M2_INTERVALCTRL                     2 range 0 1000      "time between control runs (ms)"
+    M2_CURRENT		                2 unmapped          "raw current reading"
+    M2_ODO                              2 unmapped          "encoder ticks"
+}
+
+-- these are registers which actually exist only on the master;
+-- they're dealt with specially, not relayed over to the slave. As such,
+-- there is no common block.
+
+MASTER nocommon {
+    RESET		    writable    1 unmapped           "set to clear exception state"
+    EXCEPTIONDATA                       2 unmapped           "data of exception"
+}   
