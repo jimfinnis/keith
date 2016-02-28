@@ -3,7 +3,6 @@
 #include "pwm.h"
 #include <stdint.h>
 #include <avr/wdt.h>
-#include <util/twi.h>
 
 
 #include "config.h"
