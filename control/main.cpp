@@ -17,11 +17,7 @@ int main(int argc,char *argv[]){
     Rover r;
     r.attachCommsListener(&stat);
     r.init(argv[1]);
-    sleep(1);
-    r.setMasterDebug(10000);
     r.update();
-    
     printf("%d\n",r.getMasterData()->debug);
-    printf("%d\n",r.getSlaveData1()->timer);
-    printf("%f\n",r.getSlaveData1()->reqspeed1);
+    printf("%d\n",r.getSlaveData(0)->timer);
 }
