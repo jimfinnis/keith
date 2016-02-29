@@ -23,6 +23,11 @@ class MyStatusListener: public StatusListener {
 };
 static MyStatusListener stat;
 
+// wheel to slave ID
+static int w2s(int n){return n/2;}
+// wheel to motor DI
+static int w2m(int n){return n%2;}
+
 %wordargs connect s (device -- valid/bool) connect to rover
 {
     a->pushInt(r.init(p0)?1:0);
@@ -33,10 +38,15 @@ static MyStatusListener stat;
     r.update();
 }
 
-%wordargs params hii (hash motor slave --) set parameters
+%word reset reset exceptions
 {
-    if(p1<2 && p2<2 && p1>=0 && p2>=0){
-        SlaveData *sd = r.getSlaveData(p2);
+    r.resetSlaveExceptions();
+}
+
+%wordargs params hi (hash wheel --) set parameters
+{
+    if(p1<4 && p1>=0) {
+        SlaveData *sd = r.getSlaveData(w2s(p1));
         MotorParams params;
         params.pgain = hgetfloatdef(p0,"pgain",0);
         params.igain = hgetfloatdef(p0,"igain",0);
@@ -44,20 +54,29 @@ static MyStatusListener stat;
         params.icap = hgetfloatdef(p0,"icap",0);
         params.idecay = hgetfloatdef(p0,"idecay",0);
         params.deadzone = hgetfloatdef(p0,"deadzone",0);
-        sd->sendMotorParams(p1,&params);
+        sd->sendMotorParams(w2m(p1),&params);
     }
 }
 
-%wordargs getslavetimer i (slave -- t)
+%wordargs getslavedata i (slave -- t)
 {
-    a->pushInt(r.getSlaveData(p0)->timer);
+    if(p0<NUMSLAVES){
+        Hash *h = Types::tHash->set(a->pushval());
+        h->setSymInt("timer",r.getSlaveData(p0)->timer);
+        h->setSymInt("status",r.getSlaveData(p0)->status);
+        h->setSymInt("exception",r.getSlaveData(p0)->exceptionData);
+        h->setSymInt("debug",r.getSlaveData(p0)->debug);
+    } else
+        a->pushNone();
+        
+        
 }
 
-%wordargs getdata ii (motor slave -- hash) get motor params
+%wordargs getdata i (wheel -- hash) get motor params
 {
-    if(p0<2 && p1<2 && p0>=0 && p1>=0){
-        SlaveData *sd = r.getSlaveData(p1);
-        MotorData *ptr = sd->getData(p0);
+    if(p0<4 && p0>=0){
+        SlaveData *sd = r.getSlaveData(w2s(p0));
+        MotorData *ptr = sd->getData(w2m(p0));
         
         Hash *h = Types::tHash->set(a->pushval());
         h->setSymFloat("actual",ptr->actual);
@@ -71,10 +90,33 @@ static MyStatusListener stat;
         a->pushNone();
 }
     
+struct SpeedProperty : public Property {
+    SlaveData *slave;
+    int motor;
+    Angort *a;
     
+    SpeedProperty(Angort *_a){
+        a=_a;
+    }
+    
+    virtual void preSet(){
+        int w = a->popInt();
+        slave = r.getSlaveData(w2s(w));
+        motor = w2m(w);
+    }
+    virtual void postSet(){
+        slave->setSpeed(motor,v.toFloat());
+    }
+    virtual void preGet(){
+        preSet();
+        Types::tFloat->set(&v,slave->getData(motor)->req);
+    }
+};
 
 %init
 {
     fprintf(stderr,"Initialising rover library %s %s\n",__DATE__,__TIME__);
     r.attachCommsListener(&stat);
+    
+    a->registerProperty("speed",new SpeedProperty(a),"rover");
 }    

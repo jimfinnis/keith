@@ -76,7 +76,6 @@ void I2CSlave::poll(){
     // we look at one register each time we call this, covering all
     // of them in NUMREGS polls
     static int i=0;
-    
     // inform any listeners of changes since last time.
     if(regChanged[i]){
         for(I2CSlaveListener *s=headListener;s;s=s->next){

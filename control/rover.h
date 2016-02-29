@@ -11,30 +11,33 @@
 #include "master.h"
 #include "slave.h"
 
+#define NUMSLAVES 2
+
 class Rover {
     SerialComms comms;
     SlaveProtocol protocol;
     
     SlaveDevice masterDev; // actually the master device, not a slave
-    SlaveDevice slaveDev[2];
+    SlaveDevice slaveDev[NUMSLAVES];
     
     MasterData *masterData;
-    SlaveData *slaveData[2];
+    SlaveData *slaveData[NUMSLAVES];
     bool valid;
 public:
     Rover(){
         valid = false;
         masterData=NULL;
-        slaveData[0]=slaveData[1]=NULL;
+        for(int i=0;i<NUMSLAVES;i++)
+            slaveData[i]=NULL;
     }
     
     ~Rover(){
         if(masterData)
             delete masterData;
-        if(slaveData[0])
-            delete slaveData[0];
-        if(slaveData[1])
-            delete slaveData[1];
+        for(int i=0;i<NUMSLAVES;i++){
+            if(slaveData[i])
+                delete slaveData[i];
+        }
     }
     
     bool init(const char *port){
@@ -48,33 +51,37 @@ public:
         masterDev.init(&protocol,registerTable_MASTER,0);
         masterData->init(); // set read set
         
-        for(int i=0;i<2;i++){
+        for(int i=0;i<NUMSLAVES;i++){
             slaveData[i] = new SlaveData(&slaveDev[i]);
             slaveDev[i].init(&protocol,registerTable_DRIVE,i+1);
             slaveData[i]->init();
         }
         
         valid =true;
+        return valid;
     }
     
     void update(){
         if(valid){
             masterData->update();
-            slaveData[0]->update();
-            slaveData[1]->update();
+            for(int i=0;i<NUMSLAVES;i++){
+                slaveData[i]->update();
+            }
         }
     }
     
     void attachCommsListener(StatusListener *s){
         comms.setStatusListener(s);
     }
-                                                
     
     MasterData *getMasterData(){
         return masterData;
     }
     SlaveData *getSlaveData(int n){
-        return slaveData[n];
+        if(n<NUMSLAVES)
+            return slaveData[n];
+        else 
+            throw RoverException().set("slave number out of range: %d",n);
     }
     
     void setMasterDebug(int v){
@@ -82,6 +89,12 @@ public:
         masterDev.writeInt(REGMASTER_DEBUG,v);
         masterDev.endWrites();
         
+    }
+    
+    void resetSlaveExceptions(){
+        for(int i=0;i<NUMSLAVES;i++){
+            slaveData[i]->reset(RESET_EXCEPTIONS);
+        }
     }
           
 };

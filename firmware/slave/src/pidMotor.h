@@ -20,7 +20,8 @@ class PIDMotor {
     Motor m;
     QuadEncoder e;
     
-    bool reversed; //!< encoder is backwards
+    bool dirReversed; //!< motor should run backwards
+    bool encReversed; //!< encoder is backwards
     
     float prevActual;
     unsigned long prevTime;
@@ -37,8 +38,9 @@ class PIDMotor {
     
         float interval = ((float)micInterval) * 1.0e-6f; // interval in seconds
         
+        float req = dirReversed ? -required : required;
         // get error
-        error = required - actual;
+        error = req - actual;
         // dead zone
         if(error<0 && error>-deadZone ||
            error>0 && error<deadZone)error=0;
@@ -91,10 +93,12 @@ public:
         
     
     /// set up the motor, passing in the motor control pins
+    /// whether the direction should be reversed,
     /// and whether the encoder pins are backwards!
-    void init(int pwm,int dir,bool rev){
+    void init(int pwm,int dir,bool drev,bool erev){
         m.init(pwm,dir);
-        reversed = rev;
+        dirReversed = drev;
+        encReversed = erev;
         prevTime = micros();
     }
     
@@ -109,7 +113,8 @@ public:
     void update(){
         if(e.update()){
             actual = e.getTickFreq();
-            if(reversed)actual = -actual;
+            if(encReversed)actual = -actual;
+            if(dirReversed)actual = -actual;
             
             if(calculatePIDCorrection()){
                 // calculate correction
@@ -128,8 +133,7 @@ public:
     
     /////////////////// motor values ///////////////////////
     
-    float actual; //!< reported encoder speed
-    float required; //!< required speed
+    float required,actual;
     /// integral of error for I-term calculation
     float errorIntegral;
     /// derivative of error for D-term calculation - *really* it's the position derivative!

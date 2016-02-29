@@ -30,15 +30,17 @@ uint8_t Device::readSetCt[READSETS];
 /// between them, m times. If m is -100, does it forever.
 
 void flashdeb(int n,int m){
+    digitalWrite(13,LOW);
     while(m==-100 || m--){
         for(int i=0;i<n;i++){
+            digitalWrite(13,HIGH);
             delay(200);
             digitalWrite(13,LOW);
             delay(200);
-            digitalWrite(13,HIGH);
         }
         delay(1000);
     }
+    digitalWrite(13,LOW);
 }
 
 /// panic method - flashes n times, forever
@@ -49,21 +51,22 @@ void halt(int n){
 
 // panic on slave - flash code is 4,address,exception
 void panic(int address,int exception){
+    wdt_disable();
     for(;;){
         flashdeb(4,1);
         flashdeb(address,1);
         flashdeb(exception,1);
-        delay(1000);
+        delay(3000);
     }
 }
               
 
 /// an array of slave devices, one for each I2C device. 
 
-#define NUMSLAVES 1
+#define NUMSLAVES 2
 I2CDevice slaves[] = {
     I2CDevice(1,registerTable_DRIVE),
-//    I2CDevice(2,registerTable_DRIVE),
+    I2CDevice(2,registerTable_DRIVE),
 };
 
 class Device *getDeviceByAddr(int addr){
@@ -222,8 +225,21 @@ void setup()
     Wire.begin(); // join I2C bus as the master
     pinMode(13,OUTPUT);
     digitalWrite(13,HIGH);
+    delay(100);
     digitalWrite(13,LOW);
-    
+    delay(100);
+    digitalWrite(13,HIGH);
+    delay(100);
+    digitalWrite(13,LOW);
+    delay(100);
+    digitalWrite(13,HIGH);
+    delay(100);
+    digitalWrite(13,LOW);
+    delay(100);
+    digitalWrite(13,HIGH);
+    delay(100);
+    digitalWrite(13,LOW);
+    delay(100);
     
 //    cbi(PORTC,4); // disable internal pullups for I2C
 //    cbi(PORTC,5);
@@ -234,7 +250,7 @@ void setup()
     for(int i=0;i<NUMSLAVES;i++){
         slaves[i].reset();
     }
-    wdt_enable(WDTO_120MS);
+//    wdt_enable(WDTO_120MS);
     
     //    TWSR = 3; // slow down
     //    TWBR = 0x20;

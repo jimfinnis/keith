@@ -13,6 +13,13 @@ struct MotorData {
     float actual,error,errorIntegral,errorDeriv;
     float control;
     int current,odo;
+    float req; // set in SlaveData::setspeed
+    
+    MotorData(){
+        actual=error=errorIntegral=errorDeriv=0;
+        current=odo=control=0;
+        req=0;
+    }
     
     // assumes that readRegs() has been called on the slave
     // for an appropriate read set, and this will be called
@@ -44,17 +51,19 @@ struct MotorParams {
 
 struct SlaveData {
     SlaveDevice *slave;
-    
     SlaveData(SlaveDevice *s){
         slave = s;
     }
     
     MotorData m[2];
-    int timer;
+    int timer,status,exceptionData,debug;
     
     void init(){
         slave->setReadSet(READSET_MOTORS,
                           REG_TIMER,
+                          REG_STATUS,
+                          REG_EXCEPTIONDATA,
+                          REG_DEBUG,
                           
                           REGDRIVE_M1_ACTUALSPEED,
                           REGDRIVE_M1_ERROR,
@@ -77,7 +86,12 @@ struct SlaveData {
     void update(){
         slave->readRegs(READSET_MOTORS);
         int rct=0;
+        
         timer = slave->getRegInt(rct++);
+        status = slave->getRegInt(rct++);
+        exceptionData = slave->getRegInt(rct++);
+        debug = slave->getRegInt(rct++);
+        
         rct = m[0].read(slave,rct);
         rct = m[1].read(slave,rct);
     }
@@ -101,6 +115,7 @@ struct SlaveData {
         int offset = PARAMOFFSET*motor;
         slave->startWrites();
         slave->writeFloat(REGDRIVE_M1_REQSPEED+offset,req);
+        m[motor].req = req;
         slave->endWrites();
     }
     void reset(int flags){

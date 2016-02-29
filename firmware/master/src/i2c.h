@@ -32,8 +32,9 @@ public:
     void update(){
         uint16_t r;
         writeRegister(REG_PING,0); // ping
+/* we don't do this any more, because exception is a valid state -
+ * and slaves start in this state!
         readRegister(REG_STATUS,&r);
-        
         if(r & ST_EXCEPTION){
             // best find out what it is
             readRegister(REG_EXCEPTIONDATA,&r);
@@ -42,7 +43,7 @@ public:
             // panic!!
             panic(addr,id);
         }
-    }
+*/    }
     
     int getAddr(){
         return addr;

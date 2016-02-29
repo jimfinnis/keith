@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <avr/wdt.h>
 
+#define I2C_ADDR 2
 
 #include "config.h"
 #include "../../common/regsauto.h"
@@ -58,7 +59,7 @@ class MyI2CListener : public I2CSlaveListener {
             inException=true;
             break;
         case REG_PING:
-            ledCounts[0]=20;
+            ledCounts[0]=2;
             break;
         case REG_RESET:
             I2CSlave::setRegisterInt(REG_RESET,0); // clear it back!
@@ -132,8 +133,9 @@ class MyI2CListener : public I2CSlaveListener {
 
 static MyI2CListener listener;
 
-/// set the registers for parameters which may have been set at this end
-void setRegsParams(){
+/// set the registers for parameters which may have been set in
+/// initialisation!
+void setInitRegsParams(){
     I2CSlave::setRegisterFloat(REGDRIVE_M1_REQSPEED,m1.required);
     I2CSlave::setRegisterFloat(REGDRIVE_M1_PGAIN,m1.pGain);
     I2CSlave::setRegisterFloat(REGDRIVE_M1_IGAIN,m1.iGain);
@@ -152,7 +154,8 @@ void setRegsParams(){
     I2CSlave::setRegisterFloat(REGDRIVE_M2_DEADZONE,m2.deadZone);
 }
 
-/// set the registers for values read from the motors
+/// set the registers for values read from the motors, and other values,
+/// to be sent to the master
 void setRegsValues(){
     I2CSlave::setRegisterFloat(REGDRIVE_M1_CURRENT,m1.getCurrent());
     I2CSlave::setRegisterFloat(REGDRIVE_M1_ACTUALSPEED,m1.actual);
@@ -170,7 +173,13 @@ void setRegsValues(){
     I2CSlave::setRegisterFloat(REGDRIVE_M2_ERRORDERIV,m2.errorDerivative);
     I2CSlave::setRegisterInt(REGDRIVE_M2_ODO,m2.getOdometry());
     
-    I2CSlave::setRegisterInt(REG_DEBUG,0);
+    // status and exception just tell us the same thing right now
+    uint16_t status=0;
+    if(inException)status|=ST_EXCEPTION;
+    I2CSlave::setRegisterInt(REG_STATUS,status);
+    I2CSlave::setRegisterInt(REG_EXCEPTIONDATA,inException?1:0);
+    I2CSlave::setRegisterInt(REG_TIMER,millis());
+    I2CSlave::setRegisterInt(REG_DEBUG,123);
 }
 
 
@@ -180,7 +189,7 @@ void initI2C(int addr){
     // of the range for registers which are float-mapped.
     // Here we have to make sure the register maps the actual value.
     I2CSlave::init(addr,registerTable_DRIVE);
-    setRegsParams();
+    setInitRegsParams();
     I2CSlave::addListener(&listener);
 }
 
@@ -188,6 +197,7 @@ void initI2C(int addr){
 void setup()
 {
     Serial.begin(9600);
+    Serial.println("reboot");
     
     MCUSR=0; // reset any enabled WDT
     wdt_enable(WDTO_1S); // start WDT
@@ -196,37 +206,57 @@ void setup()
 //    setPwmFrequency(PWm2,1); 
 //    setPwmFrequency(PWM2,1);
     
-    m1.init(PWM1,DIR1,true); // pins and whether I've done the encoder backwards
-    m2.init(PWM2,DIR2,true); // pins and whether I've done the encoder backwards
+    // motors: the two pins, if direction is reversed, and if encoders
+    // are reversed.
     
+#if (I2C_ADDR==2)
+    m1.init(PWM1,DIR1,true,true); 
+    m2.init(PWM2,DIR2,true,true); 
+#else
+    m1.init(PWM1,DIR1,false,true); 
+    m2.init(PWM2,DIR2,false,true); 
+#endif
     pinMode(ENC1A,INPUT_PULLUP); // the two encoder pins
     pinMode(ENC1B,INPUT_PULLUP);
     
     pinMode(ENC2A,INPUT_PULLUP); // the two encoder pins
     pinMode(ENC2B,INPUT_PULLUP);
     
-    initI2C(1); // takes address
+//    Serial.println("I2C init");
+    initI2C(I2C_ADDR); // takes address
+//    Serial.println("I2C init done");
     
     pinMode(LED1,OUTPUT);
     pinMode(LED2,OUTPUT);
+    
+    // flash LED
+    wdt_reset();
+    digitalWrite(LED1,HIGH);
+    delay(200);
+    wdt_reset();
+    digitalWrite(LED1,LOW);
 
     setupEncoderISR();
-    Serial.println("READY");
+//    Serial.println("READY");
 }
 
 void loop()
 {
     // read I2C data and handle register changes
+//    Serial.println("i2c poll");
     I2CSlave::poll();
     
     // update motors
+//    Serial.println("motor update");
     m1.update();
     m2.update();
+//    Serial.println("updated");
     
     wdt_reset();
+    
+    // update the register values for reading by master
     setRegsValues();
-    I2CSlave::setRegisterInt(REG_STATUS,0);
-    I2CSlave::setRegisterInt(REG_TIMER,millis());
+//    Serial.println("regset");
     
     unsigned long q = 0;
     unsigned long t = micros();

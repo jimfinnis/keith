@@ -25,7 +25,8 @@
 #define ENC2A 9
 #define ENC2B 10
 
-#define LED1  12
-#define LED2  13
+// yeah, these are backwards - 13 is the primary LED.
+#define LED1  13
+#define LED2  12
 
 #endif /* __CONFIG_H */

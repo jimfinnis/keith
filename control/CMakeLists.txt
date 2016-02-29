@@ -33,7 +33,7 @@ add_words_files(words.cpp)
 
 link_directories(${ANGORT_SOURCE_DIR}/lib)
 add_library(rover SHARED ${WORDFILELIST} ${SOURCES})
-add_executable(test main.cpp ${SOURCES})
+add_executable(test test.cpp ${SOURCES})
 
 add_custom_command(TARGET rover
     POST_BUILD

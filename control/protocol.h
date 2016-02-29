@@ -51,6 +51,8 @@ public:
 /// (or a number of them)
 
 class SlaveProtocol {
+    /// if true, dump protocol data to stdout
+    bool debugging;
     /// the buffer for commands. The count is in the first byte.
     /// This is 256 in size because the count is a byte wide.
     uint8_t buf[256];
@@ -71,6 +73,7 @@ public:
     
     /// constructor - we still need to call init() after this
     SlaveProtocol(){
+        debugging = false;
         comms = NULL;
         ct=0;
     }
@@ -78,6 +81,11 @@ public:
     /// initialise the protocol, telling it which comms we're using
     void init(SerialComms *c){
         comms = c;
+    }
+    
+    /// turn on debugging
+    void setDebug(bool d){
+        debugging=d;
     }
     
     /// start a new command, putting the slave ID into the top four bits
@@ -114,7 +122,7 @@ public:
         if(ct>1){
             buf[0]=ct;
             int rv = comms->write((const char *)buf,ct);
-                        dump("Write",buf,ct);
+            if(debugging)dump("Write",buf,ct);
             ct=0;
             if(rv<0)
                 throw SlaveException("cannot write block: %d",rv);
@@ -139,7 +147,7 @@ public:
             ptr+=rv;
             size-=rv;
         }
-                dump("TOTAL READ",base,qqq);
+        if(debugging)dump("Read",base,qqq);
     }
 };
 

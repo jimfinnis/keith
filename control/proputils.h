@@ -16,8 +16,8 @@ struct StringProperty : public Property {
         return v.toString().get();
     }
 };
-struct IntProperty : public Property {
-    IntProperty(float *d){dd=d;}
+struct FloatProperty : public Property {
+    FloatProperty(float *d){dd=d;}
     virtual void postSet(){
         *dd = v.toFloat();
     }
