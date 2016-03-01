@@ -8,10 +8,13 @@
 #ifndef __MASTER_H
 #define __MASTER_H
 
+#include <Servo.h>
+
 #include "device.h"
 #include "../../common/regsauto.h"
 
 extern int debledct;
+static Servo servo;
 
 class MasterDevice : public Device {
     int debug;
@@ -21,6 +24,7 @@ public:
     }
     
     void init(){
+        servo.attach(9);
     }
           
     /// reset will reset the master's exception state
@@ -36,6 +40,9 @@ public:
             debug=val;
             debledct=val;
             if(debledct)digitalWrite(13,HIGH);
+            break;
+        case REGMASTER_SERVO:
+            servo.write(val);
             break;
         }
         return 0;
@@ -55,6 +62,9 @@ public:
         switch(r){
         case REGMASTER_EXCEPTIONDATA:
             *readValue = 0;
+            break;
+        case REGMASTER_SERVO:
+            *readValue = servo.read();
             break;
         case REGMASTER_DEBUG:
             *readValue = debug;

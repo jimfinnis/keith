@@ -39,6 +39,12 @@ struct MasterData {
         debug = slave->getRegInt(rct++);
         exceptionData = slave->getRegInt(rct++);
     }
+    
+    void setServo(int v){
+        slave->startWrites();
+        slave->writeInt(REGMASTER_SERVO,v);
+        slave->endWrites();
+    }
 };
 
 

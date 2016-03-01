@@ -89,6 +89,13 @@ static int w2m(int n){return n%2;}
     } else
         a->pushNone();
 }
+
+%wordargs servo i (val --) set servo pos
+{
+    MasterData *m= r.getMasterData();
+    m->setServo(p0);
+}
+    
     
 struct SpeedProperty : public Property {
     SlaveData *slave;

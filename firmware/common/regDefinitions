@@ -65,4 +65,5 @@ MASTER nocommon {
     RESET		    writable    1 unmapped           "set to clear exception state"
     EXCEPTIONDATA                       2 unmapped           "data of exception"
     DEBUG                   writable    2 unmapped           "master test"
+    SERVO                   writable    1 unmapped           "servo position 0 to 180"
 }   
