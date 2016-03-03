@@ -1,0 +1,106 @@
+#
+# Runs on primary PC, examines joystick
+#
+
+[`sdl,`time,`udp] each {i library drop}
+
+sdl$joyct 0 = if "no joystick present". quit then
+
+11111 # recv port unused
+"127.0.0.1" 31222 udp$start # send host/port
+
+
+"Joytest" 800 600 sdl$open
+"./Foglihten-068.otf" 15 sdl$openfont !Font
+
+:txstart |x,y:|
+    ?x!TextX ?y!TextY
+;
+
+
+:drawtext |s:t|
+    ?s ?Font sdl$maketext !t
+    ?TextX ?TextY none none ?t sdl$blit
+    ?TextY ?t sdl$texsize drop + 2+ !TextY
+;
+
+
+0 sdl$joyopen !J
+
+`speedl udp$addvar 
+`speedr udp$addvar 
+
+0!speedl 0!speedr
+
+:scale 32878.0 /;
+
+:calcfromjoys |:roll,pitch,yaw,throttle,l,r|
+    ?Joys?`roll scale !roll
+    ?Joys?`pitch scale neg !pitch
+    ?Joys?`yaw scale 0.1 * !yaw
+    ?Joys?`throttle scale neg !throttle
+    
+    ?throttle ?pitch 1.5 * 1 + * !throttle
+    ?throttle 0 < if ?throttle 0.5 * else ?throttle then !throttle
+    
+    ?throttle dup !l !r
+    
+    ?roll 0 < if
+        ?l ?roll neg 0.5 * ?l * - !l
+    else
+        ?r ?roll 0.5 * ?r * - !r
+    then
+    
+    ?l ?yaw + !l
+    ?r ?yaw - !r
+    
+    ?l 50 * !speedl
+    ?r 50 * !speedr
+    
+ 
+;
+
+:draw
+    10 10 txstart
+    
+    ?Joys each {
+        [i,ival] "%s: %d" format drawtext
+    }
+    300 10 txstart
+    ["LEFT","RIGHT"] each {i drawtext}
+    400 10 txstart
+    [?speedl,?speedr] each {i tostr drawtext}
+;
+
+(
+    chr "q" = if 
+        0!speedl
+        0!speedr
+        udp$poll
+        sdl$done then
+) sdl$onkeydown
+
+[%
+ `roll 0,
+ `pitch 1,
+ `yaw 3,
+ `throttle 2
+] !NameToAxis
+
+:readjoys
+    [%] ?NameToAxis each {
+        i ival ?J sdl$joygetaxis,
+    } !Joys
+;
+
+(
+    readjoys
+    calcfromjoys
+    sdl$clear
+    draw
+    sdl$flip
+    0.1 time$delay
+    udp$poll
+) sdl$ondraw
+
+sdl$loop quit

@@ -1,0 +1,42 @@
+["../control/build/rover",
+ `time,`udp] each {i library drop}
+
+(
+    "/dev/ttyACM0" rover$connect not if
+        "Connect failed".
+        quit
+   then
+)@
+    
+rover$reset
+
+
+[%
+ `pgain 0.02,
+ `igain 0.01,
+ `icap 100,
+ `idecay 0.9
+ ] !P
+0 4 range each {?P i rover$params}
+
+31222 # server port 
+"" 0 udp$start
+
+`speedl udp$addvar 
+`speedr udp$addvar 
+
+(
+    dup 0!rover$speed 2!rover$speed
+) `speedl udp$onchange
+    
+(
+    dup 1!rover$speed 3!rover$speed
+) `speedr udp$onchange
+
+(
+    {
+        udp$poll
+        0.1 time$delay
+    }
+)@
+
