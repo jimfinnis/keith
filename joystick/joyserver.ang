@@ -10,7 +10,6 @@
     
 rover$reset
 
-
 [%
  `pgain 0.02,
  `igain 0.01,
@@ -25,11 +24,11 @@ rover$reset
 `speedl udp$addvar 
 `speedr udp$addvar 
 
-(
+( dup "L" p .
     dup 0!rover$speed 2!rover$speed
 ) `speedl udp$onchange
     
-(
+( dup "R" p .
     dup 1!rover$speed 3!rover$speed
 ) `speedr udp$onchange
 
