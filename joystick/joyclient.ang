@@ -7,7 +7,7 @@
 sdl$joyct 0 = if "no joystick present". quit then
 
 11111 # recv port unused
-"127.0.0.1" 31222 udp$start # send host/port
+"keith.lan" 31222 udp$start # send host/port
 
 
 "Joytest" 800 600 sdl$open
