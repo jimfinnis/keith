@@ -32,7 +32,7 @@ sdl$joyct 0 = if "no joystick present". quit then
 
 0!speedl 0!speedr
 
-:scale 32878.0 /;
+:scale 32768.0 /;
 
 :calcfromjoys |:roll,pitch,yaw,throttle,l,r|
     ?Joys?`roll scale !roll
