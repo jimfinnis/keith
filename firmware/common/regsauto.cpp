@@ -50,6 +50,10 @@ extern MAYBEPROGMEM Register registerTable_MASTER[]={
 	{65, -1.0, -1.0}, 	// RESET: (0)  set to clear exception state
 	{2, -1.0, -1.0}, 	// EXCEPTIONDATA: (1)  data of exception
 	{66, -1.0, -1.0}, 	// DEBUG: (2)  master test
-	{65, -1.0, -1.0}, 	// SERVO: (3)  servo position 0 to 180
-	{32, -1.0, -1.0}, 	// TERMINATOR: (4)  
+	{65, -1.0, -1.0}, 	// SERVO1: (3)  servo position 0 to 180
+	{65, -1.0, -1.0}, 	// SERVO2: (4)  servo position 0 to 180
+	{1, -1.0, -1.0}, 	// SONAR1: (5)  sonar distance (cm)
+	{1, -1.0, -1.0}, 	// SONAR2: (6)  sonar distance (cm)
+	{1, -1.0, -1.0}, 	// SONAR3: (7)  sonar distance (cm)
+	{32, -1.0, -1.0}, 	// TERMINATOR: (8)  
 };

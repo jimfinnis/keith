@@ -351,7 +351,7 @@ public:
             v=*ptr++;
             if(regs[readSet[set][i]].getSize()==2)
                 v+=*ptr++ << 8;
-            //            printf("%x: Reg %d = %x\n",(ptr-buf),readSet[i],v);
+//                        printf("%ld: Reg %d = %d\n",(ptr-buf),readSet[set][i],v);
             regVals[i]=v;
         }
     }    

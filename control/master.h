@@ -17,6 +17,7 @@ struct MasterData {
     // data read from serial
     int debug;
     int exceptionData;
+    int sonarDists[3];
     
     MasterData(SlaveDevice *s){
         slave = s;
@@ -26,6 +27,9 @@ struct MasterData {
         slave->setReadSet(READSET_MASTER,
                           REGMASTER_DEBUG,
                           REGMASTER_EXCEPTIONDATA,
+                          REGMASTER_SONAR1,
+                          REGMASTER_SONAR2,
+                          REGMASTER_SONAR3,
                           -1);
     }
     
@@ -38,12 +42,16 @@ struct MasterData {
         int rct=0;
         debug = slave->getRegInt(rct++);
         exceptionData = slave->getRegInt(rct++);
+        sonarDists[0]=slave->getRegInt(rct++);
+        sonarDists[1]=slave->getRegInt(rct++);
+        sonarDists[2]=slave->getRegInt(rct++);
     }
     
     void setServo(int v){
-        slave->startWrites();
-        slave->writeInt(REGMASTER_SERVO,v);
-        slave->endWrites();
+//        slave->startWrites();
+//        slave->writeInt(REGMASTER_SERVO,v);
+        //        slave->endWrites();
+        printf("SERVO NOT IMPLEMENTED\n");
     }
 };
 

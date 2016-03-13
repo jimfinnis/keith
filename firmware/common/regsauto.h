@@ -55,8 +55,12 @@ extern MAYBEPROGMEM Register registerTable_DRIVE[];
 #define REGMASTER_RESET	0 	//set to clear exception state
 #define REGMASTER_EXCEPTIONDATA	1 	//data of exception
 #define REGMASTER_DEBUG	2 	//master test
-#define REGMASTER_SERVO	3 	//servo position 0 to 180
-#define NUMREGS_MASTER 4
+#define REGMASTER_SERVO1	3 	//servo position 0 to 180
+#define REGMASTER_SERVO2	4 	//servo position 0 to 180
+#define REGMASTER_SONAR1	5 	//sonar distance (cm)
+#define REGMASTER_SONAR2	6 	//sonar distance (cm)
+#define REGMASTER_SONAR3	7 	//sonar distance (cm)
+#define NUMREGS_MASTER 8
 
 extern MAYBEPROGMEM Register registerTable_MASTER[];
 

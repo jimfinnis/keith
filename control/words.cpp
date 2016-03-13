@@ -95,6 +95,15 @@ static int w2m(int n){return n%2;}
     MasterData *m= r.getMasterData();
     m->setServo(p0);
 }
+
+%wordargs sonar i (val -- val) get sonar dist
+{
+    MasterData *m= r.getMasterData();
+    if(p0>=0 && p0<=2)
+        a->pushInt(m->sonarDists[p0]);
+    else
+        a->pushNone();      
+}
     
     
 struct SpeedProperty : public Property {
