@@ -1,0 +1,36 @@
+[`rover] each {i library drop}
+
+require "../common.ang"
+
+:stat
+    rover$update
+    0 rover$getslavedata util$show.
+    1 rover$getslavedata util$show.
+    ?Wheels each {
+        i rover$getdata util$show.
+    }
+;
+
+30 !LastSpeed
+:d |s:|
+    ?s !LastSpeed
+    ?Wheels each {
+        ?s i!rover$speed
+    }
+;
+
+:s 0 d;
+
+:diff |l,r:|
+    ?l dup 0!rover$speed 2!rover$speed
+    ?r dup 1!rover$speed 3!rover$speed
+;
+
+20 !TurnSpeed
+:l 
+    ?TurnSpeed -1 * ?TurnSpeed diff;
+
+:r
+    ?TurnSpeed ?TurnSpeed -1 * diff;
+    
+

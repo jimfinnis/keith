@@ -1,22 +1,7 @@
-["../control/build/rover",
- `time,`udp] each {i library drop}
+[`udp,"../control/build/rover"] each {i library drop}
+require "../control/common.ang"
 
-(
-    "/dev/ttyACM0" rover$connect not if
-        "Connect failed".
-        quit
-   then
-)@
-    
-rover$reset
-
-[%
- `pgain 0.02,
- `igain 0.01,
- `icap 100,
- `idecay 0.9
- ] !P
-0 4 range each {?P i rover$params}
+init
 
 31222 # server port 
 "" 0 udp$start

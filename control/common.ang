@@ -1,0 +1,27 @@
+[`time] each {i library drop}
+require "util.ang" drop
+
+0 4 range !Wheels
+
+[%
+    `pgain 0.1,
+    `igain 0.01,
+    `icap 100,
+    `idecay 0.9
+    ] !Params
+
+:setp
+    ?Wheels each {?Params i rover$params}
+;
+
+:init
+    "/dev/ttyACM0" rover$connect not if
+        "Connect failed".
+        quit
+   then
+   0.5 time$delay
+   rover$reset
+   0.1 time$delay setp
+;
+
+
