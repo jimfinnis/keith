@@ -9,9 +9,9 @@ init
 `speedl udp$addvar 
 `speedr udp$addvar 
 
-`sonar0 add$udpvar
-`sonar1 add$udpvar
-`sonar2 add$udpvar
+`sonar0 udp$addvar
+`sonar1 udp$addvar
+`sonar2 udp$addvar
 
 ( dup "L" p .
     dup 0!rover$speed 2!rover$speed

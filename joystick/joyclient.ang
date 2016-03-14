@@ -30,9 +30,9 @@ sdl$joyct 0 = if "no joystick present". quit then
 `speedl udp$addvar 
 `speedr udp$addvar 
 
-`sonar0 add$udpvar
-`sonar1 add$udpvar
-`sonar2 add$udpvar
+`sonar0 udp$addvar
+`sonar1 udp$addvar
+`sonar2 udp$addvar
 
 0!speedl 0!speedr
 
