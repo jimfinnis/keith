@@ -24,6 +24,10 @@ rover$reset
 `speedl udp$addvar 
 `speedr udp$addvar 
 
+`sonar0 add$udpvar
+`sonar1 add$udpvar
+`sonar2 add$udpvar
+
 ( dup "L" p .
     dup 0!rover$speed 2!rover$speed
 ) `speedl udp$onchange
@@ -34,7 +38,11 @@ rover$reset
 
 (
     {
+        0 rover$sonar !sonar0
+        1 rover$sonar !sonar1
+        2 rover$sonar !sonar2
         udp$poll
+        rover$update
         0.1 time$delay
     }
 )@
