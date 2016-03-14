@@ -30,6 +30,10 @@ sdl$joyct 0 = if "no joystick present". quit then
 `speedl udp$addvar 
 `speedr udp$addvar 
 
+`sonar0 add$udpvar
+`sonar1 add$udpvar
+`sonar2 add$udpvar
+
 0!speedl 0!speedr
 
 :scale 32768.0 /;
@@ -40,8 +44,8 @@ sdl$joyct 0 = if "no joystick present". quit then
     ?Joys?`yaw scale 0.1 * !yaw
     ?Joys?`throttle scale neg !throttle
     
-    ?throttle ?pitch 1.5 * 1 + * !throttle
     ?throttle 0 < if ?throttle 0.5 * else ?throttle then !throttle
+    ?throttle ?pitch 0.5 * + !throttle
     
     ?throttle dup !l !r
     
@@ -56,8 +60,6 @@ sdl$joyct 0 = if "no joystick present". quit then
     
     ?l 50 * !speedl
     ?r 50 * !speedr
-    
- 
 ;
 
 :draw
@@ -70,6 +72,9 @@ sdl$joyct 0 = if "no joystick present". quit then
     ["LEFT","RIGHT"] each {i drawtext}
     400 10 txstart
     [?speedl,?speedr] each {i tostr drawtext}
+    500 10 txstart
+    [?sonar0,?sonar1,?sonar2] each {i tostr drawtext}
+    
 ;
 
 (
