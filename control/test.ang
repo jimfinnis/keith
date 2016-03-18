@@ -1,0 +1,45 @@
+[`rover,`time] each {i library drop}
+require "util.ang" drop
+
+(
+    "/dev/ttyACM0" rover$connect not if
+        "Connect failed".
+        quit
+   then
+)@
+    
+rover$reset
+
+
+[%
+ `pgain 0.03,
+ `igain 0.01,
+ `icap 100,
+ `idecay 0.9
+ ] !P
+0 4 range each {?P i rover$params}
+
+:setgains |p,i:|
+	[% `pgain ?p, `igain ?i, `icap 100, `idecay 0.9] !P
+	0 4 range each {?P i rover$params}
+;
+
+
+:stat
+    rover$update
+    0 rover$getslavedata util$show.
+    1 rover$getslavedata util$show.
+    0 4 range each {
+        i rover$getdata util$show.
+    }
+;
+
+:db dup 0!rover$speed 1!rover$speed;
+:df dup 2!rover$speed 3!rover$speed;
+:d dup df db;
+:s 0 db 0 df;
+    
+:son { 0.1 time$delay rover$update 
+        [] 0 3 range each {i rover$sonar,}
+        "," intercalate.
+};
