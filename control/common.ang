@@ -16,8 +16,10 @@ require "util.ang" drop
 
 :init
     "/dev/ttyACM0" rover$connect not if
-        "Connect failed".
-        quit
+        "/dev/ttyACM1" rover$connect not if
+            "Connect failed".
+            quit
+        then
    then
    0.5 time$delay
    rover$reset
